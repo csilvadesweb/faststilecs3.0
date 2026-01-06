@@ -1,13 +1,13 @@
 {
-  "name": "FastStile – Economia Inteligente",
-  "short_name": "FastStile",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#0D6EFD",
-  "theme_color": "#0D6EFD",
-  "description": "Controle financeiro inteligente, rápido, privado e offline.",
-  "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
-  ]
+ "name": "FastStile – Economia Inteligente",
+ "short_name": "FastStile",
+ "start_url": "./",
+ "display": "standalone",
+ "background_color": "#0D6EFD",
+ "theme_color": "#0D6EFD",
+ "description": "Controle financeiro inteligente, rápido, privado e offline.",
+ "icons": [
+   { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+   { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+ ]
 }
