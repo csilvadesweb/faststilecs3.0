@@ -1,0 +1,15 @@
+{
+  "name": "FastStile Financeiro",
+  "short_name": "FastStile",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#4267c7",
+  "theme_color": "#4267c7",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135706.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
