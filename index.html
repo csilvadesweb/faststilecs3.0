@@ -90,16 +90,7 @@ small{opacity:.8}
 <small>Economia Inteligente</small>
 </header>
 
-<!-- LOGIN -->
-<div id="login" class="card">
-<h3>🔐 Acesso Seguro</h3>
-<input id="user" placeholder="Nome do perfil">
-<input id="pin" type="password" placeholder="PIN">
-<button onclick="login()">Entrar / Criar Perfil</button>
-</div>
-
-<!-- APP -->
-<div id="app" class="hidden">
+<div id="app">
 
 <div class="card">
 <button onclick="toggleDark()">🌙 Dark Mode</button>
@@ -155,129 +146,86 @@ small{opacity:.8}
 </div>
 
 <script>
-let perfil=null, chartPizza=null, chartBar=null;
-
-async function hash(txt){
- const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt));
- return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
-}
-
-async function login(){
- const u=user.value.trim();
- const p=pin.value;
- if(!u||!p)return;
- const h=await hash(p);
- const db=JSON.parse(localStorage.users||"{}");
-
- if(!db[u]){
-   db[u]={pin:h,data:{renda:4299.22,meta:0,despesas:[],mes:new Date().getMonth()}};
- }
- if(db[u].pin!==h)return alert("PIN incorreto");
-
- localStorage.users=JSON.stringify(db);
- perfil=u;
- loginDiv();
-}
-
-function loginDiv(){
- login.classList.add("hidden");
- app.classList.remove("hidden");
- render();
-}
-
-function getData(){
- return JSON.parse(localStorage.users)[perfil].data;
-}
-function saveData(d){
- const db=JSON.parse(localStorage.users);
- db[perfil].data=d;
- localStorage.users=JSON.stringify(db);
-}
+// Dados globais únicos, sem login
+let data = {
+ renda: 4299.22,
+ meta: 0,
+ despesas: []
+};
 
 function addDespesa(){
- const d=getData();
- d.despesas.push({c:cat.value,v:+val.value,data:Date.now()});
- saveData(d);
+ data.despesas.push({c:cat.value,v:+val.value,data:Date.now()});
  render();
 }
 
 function salvarMeta(){
- const d=getData();
- d.meta=+meta.value;
- saveData(d);
+ data.meta=+meta.value;
  render();
 }
 
 function render(){
- const d=getData();
- const total=d.despesas.reduce((a,b)=>a+b.v,0);
- const sobra=d.renda-total;
+ const total = data.despesas.reduce((a,b)=>a+b.v,0);
+ const sobra = data.renda-total;
 
- renda.innerText=`R$ ${d.renda.toFixed(2)}`;
- desp.innerText=`R$ ${total.toFixed(2)}`;
- sobra.innerText=`R$ ${sobra.toFixed(2)}`;
+ renda.innerText = `R$ ${data.renda.toFixed(2)}`;
+ desp.innerText = `R$ ${total.toFixed(2)}`;
+ sobra.innerText = `R$ ${sobra.toFixed(2)}`;
 
- let statusTxt="OK";
+ let statusTxt = "OK";
  alerta.classList.add("hidden");
 
- if(d.meta && sobra<d.meta){
+ if(data.meta && sobra<data.meta){
    statusTxt="Meta em risco";
    alerta.innerText="⚠️ Atenção: você está abaixo da meta!";
    alerta.classList.remove("hidden");
  }
- if(sobra<0){
-   statusTxt="Prejuízo";
- }
+ if(sobra<0) statusTxt="Prejuízo";
 
  status.innerText=statusTxt;
-
  badge.classList.toggle("hidden",sobra<1000);
 
  const map={};
- d.despesas.forEach(x=>map[x.c]=(map[x.c]||0)+x.v);
+ data.despesas.forEach(x=>map[x.c]=(map[x.c]||0)+x.v);
 
- if(chartPizza)chartPizza.destroy();
- if(chartBar)chartBar.destroy();
+ if(window.chartPizza) window.chartPizza.destroy();
+ if(window.chartBar) window.chartBar.destroy();
 
- chartPizza=new Chart(grafPizza,{
+ window.chartPizza=new Chart(grafPizza,{
    type:"pie",
    data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]}
  });
 
- chartBar=new Chart(grafBar,{
+ window.chartBar=new Chart(grafBar,{
    type:"bar",
    data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]}
  });
 }
 
 function exportCSV(){
- const d=getData();
  let csv="Categoria,Valor\n";
- d.despesas.forEach(x=>csv+=`${x.c},${x.v}\n`);
+ data.despesas.forEach(x=>csv+=`${x.c},${x.v}\n`);
  download(csv,"faststile.csv");
 }
 
 function importCSV(e){
  const r=new FileReader();
  r.onload=()=>{
-   const d=getData();
    r.result.split("\n").slice(1).forEach(l=>{
      const [c,v]=l.split(",");
-     if(c&&v)d.despesas.push({c,v:+v,data:Date.now()});
+     if(c&&v)data.despesas.push({c,v:+v,data:Date.now()});
    });
-   saveData(d);render();
+   render();
  };
  r.readAsText(e.target.files[0]);
 }
 
 function backup(){
- const d=getData();
- download(JSON.stringify(d),"faststile-backup.json");
+ download(JSON.stringify(data),"faststile-backup.json");
 }
 function restore(e){
  const r=new FileReader();
  r.onload=()=>{
-   saveData(JSON.parse(r.result));
+   data=JSON.parse(r.result);
    render();
  };
  r.readAsText(e.target.files[0]);
@@ -294,9 +242,13 @@ function toggleDark(){
  document.body.classList.toggle("dark");
 }
 
+// PWA Service Worker
 if("serviceWorker"in navigator){
  navigator.serviceWorker.register("./sw.js");
 }
+
+// render inicial
+render();
 </script>
 
 </body>
