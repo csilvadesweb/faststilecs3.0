@@ -2,235 +2,232 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>FastStile 5.5 • Financeiro Premium</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#4267c7">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="manifest" href="manifest.json">
+<title>FastStile CS</title>
+
+<meta name="author" content="FASTSTILE-CS-LICENSED">
+<meta name="copyright" content="© 2026 C. Silva">
+<meta name="license" content="Uso pessoal e não comercial">
+
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
---bg:#f2f2f2;--card:#ffffff;--text:#111;
---azul:#4267c7;--verde:#2ecc71;--vermelho:#e74c3c;
+  --bg:#0f172a;
+  --card:#111827;
+  --text:#e5e7eb;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --shadow:0 8px 25px rgba(0,0,0,.45);
 }
-.dark{
---bg:#121212;--card:#1e1e1e;--text:#f1f1f1;
-}
+
 body{
-margin:0;font-family:Arial,Helvetica,sans-serif;
-background:var(--bg);color:var(--text);
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  background:var(--bg);
+  color:var(--text);
 }
-header{
-background:var(--azul);color:#fff;padding:14px 16px;
-display:flex;justify-content:space-between;align-items:center;
-font-size:18px;font-weight:bold;
+
+.container{
+  max-width:420px;
+  margin:auto;
+  padding:15px;
 }
-button{
-padding:10px 14px;border:none;border-radius:10px;
-background:var(--azul);color:#fff;font-size:14px;
-cursor:pointer;margin-top:10px;
-}
-.sec{background:#777}
-.container{padding:16px}
+
 .card{
-background:var(--card);
-border-radius:14px;
-padding:14px;
-margin-bottom:14px;
-/* SOMBRA MAIS SUAVE */
-box-shadow:0 2px 6px rgba(0,0,0,.10);
-}
-h3{margin:0 0 8px;font-size:16px}
-
-/* CAMPOS PADRÃO (MESMO TAMANHO) */
-input,select{
-width:100%;
-height:42px;
-padding:0 12px;
-margin-top:8px;
-border-radius:10px;
-border:1px solid #ccc;
-font-size:14px;
-box-sizing:border-box;
+  background:var(--card);
+  padding:15px;
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  margin-bottom:15px;
 }
 
-.ok{color:var(--verde);font-weight:bold}
-.bad{color:var(--vermelho);font-weight:bold}
+h2{margin:0 0 10px}
 
-ul{padding-left:16px;margin:8px 0}
-li{margin-bottom:6px;font-size:14px}
+input,select,button{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:8px;
+  font-size:14px;
+}
+
+button{
+  background:var(--accent);
+  color:#000;
+  font-weight:700;
+}
+
+button.danger{background:var(--danger);color:#fff}
+
+.list{
+  font-size:13px;
+  opacity:.9;
+}
+
+.list div{
+  padding:6px 0;
+  border-bottom:1px solid #1f2937;
+}
+
+footer{
+  text-align:center;
+  font-size:11px;
+  opacity:.6;
+  margin:20px 0;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<span>FastStile 💰</span>
-<button onclick="toggleTema()">🌙</button>
-</header>
-
 <div class="container">
 
-<!-- RENDA -->
 <div class="card">
-<h3>💼 Renda mensal</h3>
-<input type="number" id="renda" placeholder="Ex: 4500">
+<h2>Renda Mensal</h2>
+<input id="renda" type="number" placeholder="Valor da renda">
+<input id="rendaDesc" placeholder="Descrição da renda">
 <button onclick="salvarRenda()">Salvar renda</button>
 </div>
 
-<!-- DESPESAS -->
 <div class="card">
-<h3>📌 Nova despesa</h3>
+<h2>Nova Despesa</h2>
 
-<select id="cat">
-<option>⭐ Prioridade</option>
-<option>🍽 Alimentação</option>
-<option>🚗 Transporte</option>
-<option>🏠 Casa</option>
-<option>💊 Saúde</option>
-<option>📚 Educação</option>
-<option>🎉 Lazer</option>
-<option>📺 Assinaturas</option>
-<option>📈 Investimentos</option>
-<option>🧾 Impostos</option>
-<option>📦 Outros</option>
+<select id="categoria">
+<option>Prioridade</option>
+<option>Alimentação</option>
+<option>Transporte</option>
+<option>Casa</option>
+<option>Saúde</option>
+<option>Educação</option>
+<option>Lazer</option>
+<option>Assinaturas</option>
+<option>Investimentos</option>
+<option>Impostos</option>
+<option>Outros</option>
 </select>
 
-<input type="text" id="desc" placeholder="Descrição (ex: Luz, Água, Telefone)">
-<input type="number" id="val" placeholder="Valor da despesa">
+<input id="descDespesa" placeholder="Descrição (luz, água, telefone)">
+<input id="valorDespesa" type="number" placeholder="Valor da despesa">
 
-<button onclick="add()">Adicionar despesa</button>
+<button onclick="addDespesa()">Adicionar</button>
 </div>
 
-<!-- RESUMO -->
 <div class="card">
-<h3>📊 Resumo</h3>
-<p>Renda: R$ <span id="r"></span></p>
-<p>Despesas: R$ <span id="d"></span></p>
-<p>Sobra: R$ <span id="s"></span></p>
-<p id="status"></p>
+<h2>Status</h2>
+<div id="status"></div>
 </div>
 
-<!-- GRÁFICO -->
 <div class="card">
-<canvas id="graf"></canvas>
+<h2>Gráfico</h2>
+<canvas id="grafico"></canvas>
 </div>
 
-<!-- HISTÓRICO -->
 <div class="card">
-<h3>📜 Histórico</h3>
-<ul id="lista"></ul>
+<h2>Histórico</h2>
+<div id="historico" class="list"></div>
 </div>
 
-<!-- AÇÕES -->
 <div class="card">
-<button onclick="exportarCSV()">📤 Exportar CSV</button>
-<button onclick="backup()">💾 Backup</button>
-<input type="file" id="restore" hidden onchange="restaurar(this)">
-<button onclick="document.getElementById('restore').click()">♻ Restaurar</button>
-<button onclick="reset()" class="sec">🧹 Zerar tudo</button>
+<button class="danger" onclick="resetar()">Zerar tudo</button>
 </div>
 
 </div>
+
+<footer>
+© 2026 FastStile CS • Código protegido • C. Silva
+</footer>
 
 <script>
-if('serviceWorker'in navigator){
-navigator.serviceWorker.register('sw.js');
+/* FASTSTILE CS – COMMERCIAL PROTECTION
+   Autor: C. Silva (CSilvaDesWeb)
+   ID: FSCS-COMM-88XK-2026 */
+
+(function dominioSeguro(){
+ const permitido="csilvadesweb.github.io";
+ if(!location.host.includes(permitido)&&!location.host.includes("localhost")){
+  document.body.innerHTML="Licença inválida";
+  throw new Error();
+ }
+})();
+
+let dados=JSON.parse(localStorage.getItem("faststile"))||{
+ renda:0,
+ despesas:[]
+};
+
+function salvar(){
+ localStorage.setItem("faststile",JSON.stringify(dados));
+ atualizar();
 }
-
-document.body.classList.toggle("dark",localStorage.tema==="dark");
-function toggleTema(){
-const d=document.body.classList.toggle("dark");
-localStorage.tema=d?"dark":"light";
-}
-
-let rendaV=+localStorage.renda||0;
-let dados=JSON.parse(localStorage.dados||"[]");
-let chart;
-
-renda.value=rendaV;
-update();
 
 function salvarRenda(){
-rendaV=+renda.value;
-localStorage.renda=rendaV;
-update();
+ dados.renda=Number(renda.value);
+ salvar();
 }
 
-function add(){
-if(val.value<=0||desc.value.trim()==="")return;
-dados.push({c:cat.value,d:desc.value,v:+val.value});
-localStorage.dados=JSON.stringify(dados);
-desc.value="";val.value="";
-update();
+function addDespesa(){
+ dados.despesas.push({
+  cat:categoria.value,
+  desc:descDespesa.value,
+  val:Number(valorDespesa.value),
+  data:new Date().toLocaleDateString()
+ });
+ descDespesa.value="";
+ valorDespesa.value="";
+ salvar();
 }
 
-function update(){
-let total=dados.reduce((a,b)=>a+b.v,0);
-let sobra=rendaV-total;
+function atualizar(){
+ let total=dados.despesas.reduce((s,d)=>s+d.val,0);
+ let sobra=dados.renda-total;
 
-r.innerText=rendaV.toFixed(2);
-d.innerText=total.toFixed(2);
-s.innerText=sobra.toFixed(2);
+ status.innerHTML=`
+ Renda: R$ ${dados.renda.toFixed(2)}<br>
+ Despesas: R$ ${total.toFixed(2)}<br>
+ Sobra: R$ ${sobra.toFixed(2)}
+ `;
 
-status.innerText=sobra>=0?"✅ Situação saudável":"⚠ Gastos acima da renda";
-status.className=sobra>=0?"ok":"bad";
+ historico.innerHTML="";
+ dados.despesas.forEach(d=>{
+  historico.innerHTML+=`<div>[${d.cat}] ${d.desc} - R$ ${d.val}</div>`;
+ });
 
-lista.innerHTML="";
-dados.slice().reverse().forEach(x=>{
-lista.innerHTML+=`<li><strong>${x.c}</strong> • ${x.d} — R$ ${x.v.toFixed(2)}</li>`;
+ atualizarGrafico(total);
+}
+
+let chart;
+function atualizarGrafico(total){
+ if(chart)chart.destroy();
+ chart=new Chart(grafico,{
+  type:"doughnut",
+  data:{
+   labels:["Despesas","Sobra"],
+   datasets:[{
+    data:[total,Math.max(dados.renda-total,0)],
+    backgroundColor:["#ef4444","#22c55e"]
+   }]
+  }
+ });
+}
+
+function resetar(){
+ if(confirm("Deseja apagar tudo?")){
+  localStorage.removeItem("faststile");
+  location.reload();
+ }
+}
+
+atualizar();
+
+/* Anti-debug básico */
+document.addEventListener("contextmenu",e=>e.preventDefault());
+document.addEventListener("keydown",e=>{
+ if(e.key==="F12"||(e.ctrlKey&&e.shiftKey))e.preventDefault();
 });
-
-grafico();
-}
-
-function grafico(){
-let m={};
-dados.forEach(x=>m[x.c]=(m[x.c]||0)+x.v);
-if(chart)chart.destroy();
-chart=new Chart(graf,{
-type:"doughnut",
-data:{labels:Object.keys(m),datasets:[{data:Object.values(m)}]},
-options:{plugins:{legend:{position:"bottom"}}}
-});
-}
-
-function exportarCSV(){
-let csv="Categoria,Descrição,Valor\n";
-dados.forEach(x=>csv+=`${x.c},${x.d},${x.v}\n`);
-download(csv,"faststile.csv","text/csv");
-}
-
-function backup(){
-download(JSON.stringify({renda:rendaV,dados,tema:localStorage.tema}),
-"faststile-backup.json","application/json");
-}
-
-function restaurar(i){
-const f=new FileReader();
-f.onload=e=>{
-const d=JSON.parse(e.target.result);
-localStorage.renda=d.renda||0;
-localStorage.dados=JSON.stringify(d.dados||[]);
-localStorage.tema=d.tema||"light";
-location.reload();
-};
-f.readAsText(i.files[0]);
-}
-
-function reset(){
-if(confirm("Deseja apagar tudo?")){
-localStorage.clear();
-location.reload();
-}
-}
-
-function download(c,n,t){
-const a=document.createElement("a");
-a.href=URL.createObjectURL(new Blob([c],{type:t}));
-a.download=n;a.click();
-}
 </script>
 
 </body>
