@@ -1,7 +1,11 @@
-const cacheName="faststile-v52";
+const cacheName="faststile-v53";
 self.addEventListener("install",e=>{
-e.waitUntil(caches.open(cacheName).then(c=>c.addAll(["./"])));
+e.waitUntil(
+caches.open(cacheName).then(c=>c.addAll(["./"]))
+);
 });
 self.addEventListener("fetch",e=>{
-e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
+e.respondWith(
+caches.match(e.request).then(r=>r||fetch(e.request))
+);
 });
