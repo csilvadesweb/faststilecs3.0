@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>FastStile 5.2 • Financeiro Premium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4267c7">
+
+<link rel="manifest" href="manifest.json">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+--bg:#f2f2f2;--card:#fff;--text:#111;
+--azul:#4267c7;--verde:#2ecc71;--vermelho:#e74c3c;
+}
+.dark{
+--bg:#121212;--card:#1e1e1e;--text:#f1f1f1;
+}
+
+body{
+margin:0;font-family:Arial;background:var(--bg);color:var(--text);
+}
+header{
+background:var(--azul);color:#fff;padding:14px;
+display:flex;justify-content:space-between;align-items:center;
+}
+button{
+padding:12px;border:none;border-radius:10px;
+background:var(--azul);color:#fff;font-size:15px;cursor:pointer;
+}
+.sec{background:#777}
+.container{padding:16px}
+.card{
+background:var(--card);border-radius:16px;padding:16px;
+margin-bottom:16px;box-shadow:0 4px 10px rgba(0,0,0,.15);
+}
+input,select{width:100%;padding:12px;margin-top:8px;border-radius:10px}
+.ok{color:var(--verde);font-weight:bold}
+.bad{color:var(--vermelho);font-weight:bold}
+.hidden{display:none}
+</style>
+</head>
+
+<body>
+
+<header>
+<span>FastStile 💰</span>
+<button onclick="toggleTema()">🌙</button>
+</header>
+
+<div class="container">
+
+<div class="card" id="login">
+<h3>🔐 PIN</h3>
+<input type="password" id="pin">
+<button onclick="login()">Entrar</button>
+</div>
+
+<div id="app" class="hidden">
+
+<div class="card">
+<h3>💼 Renda</h3>
+<input type="number" id="renda">
+<button onclick="salvarRenda()">Salvar</button>
+</div>
+
+<div class="card">
+<h3>📌 Despesa</h3>
+<select id="cat">
+<option>⭐ Prioridade</option>
+<option>🍽 Alimentação</option>
+<option>🚗 Transporte</option>
+<option>🏠 Casa</option>
+<option>💊 Saúde</option>
+<option>📚 Educação</option>
+<option>🎉 Lazer</option>
+<option>📺 Assinaturas</option>
+<option>📈 Investimentos</option>
+<option>🧾 Impostos</option>
+<option>📦 Outros</option>
+</select>
+<input type="number" id="val">
+<button onclick="add()">Adicionar</button>
+</div>
+
+<div class="card">
+<h3>📊 Resumo</h3>
+<p>Renda: R$ <span id="r"></span></p>
+<p>Despesas: R$ <span id="d"></span></p>
+<p>Sobra: R$ <span id="s"></span></p>
+<p id="status"></p>
+</div>
+
+<div class="card">
+<canvas id="graf"></canvas>
+</div>
+
+<div class="card">
+<button onclick="exportarCSV()">📤 CSV</button>
+<button onclick="backup()">💾 Backup</button>
+<input type="file" id="restore" hidden onchange="restaurar(this)">
+<button onclick="document.getElementById('restore').click()">♻ Restaurar</button>
+<button onclick="reset()" class="sec">🧹 Zerar</button>
+</div>
+
+</div>
+</div>
+
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js');}
+
+document.body.classList.toggle("dark",localStorage.tema==="dark");
+
+let pinSalvo=localStorage.pin;
+let rendaV=+localStorage.renda||0;
+let dados=JSON.parse(localStorage.dados||"[]");
+let chart;
+
+function toggleTema(){
+const d=document.body.classList.toggle("dark");
+localStorage.tema=d?"dark":"light";
+}
+
+function login(){
+if(!pinSalvo){localStorage.pin=pin.value;pinSalvo=pin.value}
+if(pin.value===pinSalvo){
+login.classList.add("hidden");
+app.classList.remove("hidden");
+renda.value=rendaV;
+update();
+}else alert("PIN incorreto");
+}
+
+function salvarRenda(){rendaV=+renda.value;localStorage.renda=rendaV;update();}
+
+function add(){
+if(val.value<=0)return;
+dados.push({c:cat.value,v:+val.value});
+localStorage.dados=JSON.stringify(dados);
+val.value="";update();
+}
+
+function update(){
+let total=dados.reduce((a,b)=>a+b.v,0);
+let sobra=rendaV-total;
+r.innerText=rendaV.toFixed(2);
+d.innerText=total.toFixed(2);
+s.innerText=sobra.toFixed(2);
+status.innerText=sobra>=0?"✅ Saudável":"⚠ Estourado";
+status.className=sobra>=0?"ok":"bad";
+grafico();
+}
+
+function grafico(){
+let m={};dados.forEach(x=>m[x.c]=(m[x.c]||0)+x.v);
+if(chart)chart.destroy();
+chart=new Chart(graf,{type:"doughnut",
+data:{labels:Object.keys(m),datasets:[{data:Object.values(m)}]},
+options:{plugins:{legend:{position:"bottom"}}}});
+}
+
+function exportarCSV(){
+let csv="Categoria,Valor\n";
+dados.forEach(x=>csv+=`${x.c},${x.v}\n`);
+download(csv,"faststile.csv","text/csv");
+}
+
+function backup(){
+const data={renda:rendaV,dados,tema:localStorage.tema};
+download(JSON.stringify(data),"faststile-backup.json","application/json");
+}
+
+function restaurar(i){
+const f=new FileReader();
+f.onload=e=>{
+const d=JSON.parse(e.target.result);
+localStorage.renda=d.renda||0;
+localStorage.dados=JSON.stringify(d.dados||[]);
+localStorage.tema=d.tema||"light";
+location.reload();
+}
+f.readAsText(i.files[0]);
+}
+
+function reset(){
+if(confirm("Apagar tudo?")){localStorage.clear();location.reload();}
+}
+
+function download(c,n,t){
+const a=document.createElement("a");
+a.href=URL.createObjectURL(new Blob([c],{type:t}));
+a.download=n;a.click();
+}
+</script>
+
+</body>
+</html>
