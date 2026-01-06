@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>FastStile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login">
+  <h2>🔒 FastStile</h2>
+  <input type="password" id="pin" placeholder="PIN">
+  <button onclick="login()">Entrar</button>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<header>
+  <h1>FastStile</h1>
+  <button onclick="toggleTheme()">🌙</button>
+</header>
+
+<main>
+
+<section class="card">
+  <h2>💰 Renda Mensal</h2>
+  <input type="number" id="renda" placeholder="Digite sua renda">
+  <button onclick="salvarRenda()">Salvar Renda</button>
+</section>
+
+<section class="card resumo">
+  <h2>Resumo Financeiro</h2>
+  <p>Renda: <strong id="rendaTxt">R$ 0,00</strong></p>
+  <p>Despesas: <strong id="despesasTxt">R$ 0,00</strong></p>
+  <p>Sobra: <strong id="saldoTxt">R$ 0,00</strong></p>
+  <span id="status" class="status"></span>
+</section>
+
+<section class="card">
+  <h2>➕ Nova Despesa</h2>
+  <input id="desc" placeholder="Descrição">
+  <input id="valor" type="number" placeholder="Valor">
+  <select id="categoria">
+    <option>Alimentação</option>
+    <option>Transporte</option>
+    <option>Casa</option>
+    <option>Lazer</option>
+    <option>Outros</option>
+  </select>
+  <button onclick="add()">Adicionar</button>
+</section>
+
+<section class="card">
+  <h2>📈 Evolução</h2>
+  <canvas id="linha"></canvas>
+</section>
+
+<section class="card">
+  <h2>🍩 Despesas por Categoria</h2>
+  <canvas id="pizza"></canvas>
+</section>
+
+<section class="card">
+  <h2>📜 Histórico</h2>
+  <ul id="lista"></ul>
+</section>
+
+<section class="card danger">
+  <button onclick="resetar()">♻️ Refazer / Limpar Tudo</button>
+</section>
+
+</main>
+</div>
+
+<script src="script.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+
+</body>
+</html>
