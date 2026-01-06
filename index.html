@@ -5,7 +5,6 @@
 <title>FastStile – Economia Inteligente</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="./manifest.json">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -22,69 +21,18 @@
  --card:#1e1e1e;
  color:#fff;
 }
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:Arial,Helvetica,sans-serif;
- background:var(--bg);
-}
-header{
- background:var(--primary);
- color:#fff;
- padding:15px;
- text-align:center;
-}
-.card{
- background:var(--card);
- margin:10px;
- padding:15px;
- border-radius:14px;
- box-shadow:0 2px 6px rgba(0,0,0,.1);
-}
-button,input,select{
- width:100%;
- padding:12px;
- margin:6px 0;
- border-radius:10px;
- border:1px solid #ccc;
- font-size:15px;
-}
-button{
- background:var(--primary);
- color:#fff;
- border:none;
-}
-.hidden{display:none}
-.kpis{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px;
-}
-.kpi{
- text-align:center;
- padding:10px;
- border-radius:12px;
- background:#e9ecef;
-}
-.badge{
- display:inline-block;
- padding:6px 12px;
- border-radius:20px;
- background:gold;
- font-weight:bold;
-}
-.alert{
- background:var(--danger);
- color:#fff;
- padding:10px;
- border-radius:10px;
-}
-small{opacity:.8}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);}
+header{background:var(--primary);color:#fff;padding:15px;text-align:center;}
+.card{background:var(--card);margin:10px;padding:15px;border-radius:14px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+button,input,select{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #ccc;font-size:15px;}
+button{background:var(--primary);color:#fff;border:none;}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.kpi{text-align:center;padding:10px;border-radius:12px;background:#e9ecef;}
+.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:gold;font-weight:bold;}
+.alert{background:var(--danger);color:#fff;padding:10px;border-radius:10px;}
 </style>
 </head>
-
 <body>
-
 <header>
 <h2>FastStile</h2>
 <small>Economia Inteligente</small>
@@ -107,6 +55,7 @@ small{opacity:.8}
 <br>
 <div id="badge" class="badge hidden">🏆 Financeiro Exemplar</div>
 <div id="alerta" class="alert hidden"></div>
+<button onclick="resetApp()">♻️ Limpar / Refazer</button>
 </div>
 
 <div class="card"><canvas id="grafPizza"></canvas></div>
@@ -146,32 +95,43 @@ small{opacity:.8}
 </div>
 
 <script>
-// Dados globais únicos, sem login
-let data = {
- renda: 4299.22,
- meta: 0,
- despesas: []
-};
+// ----- Dados globais e persistência -----
+let data = JSON.parse(localStorage.getItem("faststileData")) || { renda:4299.22, meta:0, despesas:[] };
+
+// ----- Funções -----
+function saveLocal(){ localStorage.setItem("faststileData",JSON.stringify(data)); }
 
 function addDespesa(){
- data.despesas.push({c:cat.value,v:+val.value,data:Date.now()});
+ const valNum=+val.value;
+ if(valNum>0)data.despesas.push({c:cat.value,v:valNum,data:Date.now()});
+ val.value="";
  render();
+ saveLocal();
 }
 
 function salvarMeta(){
  data.meta=+meta.value;
  render();
+ saveLocal();
+}
+
+function resetApp(){
+ if(confirm("Deseja realmente limpar todas as despesas e meta?")){
+   data={renda:4299.22,meta:0,despesas:[]};
+   saveLocal();
+   render();
+ }
 }
 
 function render(){
- const total = data.despesas.reduce((a,b)=>a+b.v,0);
- const sobra = data.renda-total;
+ const total=data.despesas.reduce((a,b)=>a+b.v,0);
+ const sobra=data.renda-total;
 
- renda.innerText = `R$ ${data.renda.toFixed(2)}`;
- desp.innerText = `R$ ${total.toFixed(2)}`;
- sobra.innerText = `R$ ${sobra.toFixed(2)}`;
+ renda.innerText=`R$ ${data.renda.toFixed(2)}`;
+ desp.innerText=`R$ ${total.toFixed(2)}`;
+ sobra.innerText=`R$ ${sobra.toFixed(2)}`;
 
- let statusTxt = "OK";
+ let statusTxt="OK";
  alerta.classList.add("hidden");
 
  if(data.meta && sobra<data.meta){
@@ -180,8 +140,8 @@ function render(){
    alerta.classList.remove("hidden");
  }
  if(sobra<0) statusTxt="Prejuízo";
-
  status.innerText=statusTxt;
+
  badge.classList.toggle("hidden",sobra<1000);
 
  const map={};
@@ -190,66 +150,33 @@ function render(){
  if(window.chartPizza) window.chartPizza.destroy();
  if(window.chartBar) window.chartBar.destroy();
 
- window.chartPizza=new Chart(grafPizza,{
-   type:"pie",
-   data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]}
- });
-
- window.chartBar=new Chart(grafBar,{
-   type:"bar",
-   data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]}
- });
+ window.chartPizza=new Chart(grafPizza,{type:"pie",data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]}});
+ window.chartBar=new Chart(grafBar,{type:"bar",data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]}});
 }
 
-function exportCSV(){
- let csv="Categoria,Valor\n";
- data.despesas.forEach(x=>csv+=`${x.c},${x.v}\n`);
- download(csv,"faststile.csv");
-}
-
+// ----- CSV / Backup -----
+function exportCSV(){ let csv="Categoria,Valor\n"; data.despesas.forEach(x=>csv+=`${x.c},${x.v}\n`); download(csv,"faststile.csv"); }
 function importCSV(e){
  const r=new FileReader();
- r.onload=()=>{
-   r.result.split("\n").slice(1).forEach(l=>{
-     const [c,v]=l.split(",");
-     if(c&&v)data.despesas.push({c,v:+v,data:Date.now()});
-   });
-   render();
- };
+ r.onload=()=>{ r.result.split("\n").slice(1).forEach(l=>{ const [c,v]=l.split(","); if(c&&v)data.despesas.push({c,v:+v,data:Date.now()}); render(); saveLocal(); }); };
  r.readAsText(e.target.files[0]);
 }
-
-function backup(){
- download(JSON.stringify(data),"faststile-backup.json");
-}
+function backup(){ download(JSON.stringify(data),"faststile-backup.json"); }
 function restore(e){
  const r=new FileReader();
- r.onload=()=>{
-   data=JSON.parse(r.result);
-   render();
- };
+ r.onload=()=>{ data=JSON.parse(r.result); saveLocal(); render(); };
  r.readAsText(e.target.files[0]);
 }
+function download(content,name){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content])); a.download=name; a.click(); }
 
-function download(content,name){
- const a=document.createElement("a");
- a.href=URL.createObjectURL(new Blob([content]));
- a.download=name;
- a.click();
-}
+// ----- Dark Mode -----
+function toggleDark(){ document.body.classList.toggle("dark"); }
 
-function toggleDark(){
- document.body.classList.toggle("dark");
-}
+// ----- Service Worker -----
+if("serviceWorker"in navigator){ navigator.serviceWorker.register("./sw.js"); }
 
-// PWA Service Worker
-if("serviceWorker"in navigator){
- navigator.serviceWorker.register("./sw.js");
-}
-
-// render inicial
+// ----- Inicialização -----
 render();
 </script>
-
 </body>
 </html>
