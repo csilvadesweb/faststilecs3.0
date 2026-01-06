@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>FastStile 5.3 • Financeiro Premium</title>
+<title>FastStile 5.4 • Financeiro Premium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#4267c7">
 
@@ -42,6 +42,8 @@ border-radius:10px;border:1px solid #ccc;
 }
 .ok{color:var(--verde);font-weight:bold}
 .bad{color:var(--vermelho);font-weight:bold}
+ul{padding-left:18px}
+li{margin-bottom:6px}
 </style>
 </head>
 
@@ -64,6 +66,7 @@ border-radius:10px;border:1px solid #ccc;
 <!-- DESPESAS -->
 <div class="card">
 <h3>📌 Nova Despesa</h3>
+
 <select id="cat">
 <option>⭐ Prioridade</option>
 <option>🍽 Alimentação</option>
@@ -77,7 +80,10 @@ border-radius:10px;border:1px solid #ccc;
 <option>🧾 Impostos</option>
 <option>📦 Outros</option>
 </select>
+
+<input type="text" id="desc" placeholder="Descrição (ex: Luz, Água, Telefone)">
 <input type="number" id="val" placeholder="Valor da despesa">
+
 <button onclick="add()">Adicionar despesa</button>
 </div>
 
@@ -93,6 +99,12 @@ border-radius:10px;border:1px solid #ccc;
 <!-- GRÁFICO -->
 <div class="card">
 <canvas id="graf"></canvas>
+</div>
+
+<!-- HISTÓRICO -->
+<div class="card">
+<h3>📜 Histórico de Despesas</h3>
+<ul id="lista"></ul>
 </div>
 
 <!-- AÇÕES -->
@@ -114,7 +126,6 @@ navigator.serviceWorker.register('sw.js');
 
 /* Tema */
 document.body.classList.toggle("dark",localStorage.tema==="dark");
-
 function toggleTema(){
 const d=document.body.classList.toggle("dark");
 localStorage.tema=d?"dark":"light";
@@ -125,7 +136,7 @@ let rendaV=+localStorage.renda||0;
 let dados=JSON.parse(localStorage.dados||"[]");
 let chart;
 
-document.getElementById("renda").value=rendaV;
+renda.value=rendaV;
 update();
 
 function salvarRenda(){
@@ -135,9 +146,14 @@ update();
 }
 
 function add(){
-if(val.value<=0)return;
-dados.push({c:cat.value,v:+val.value});
+if(val.value<=0 || desc.value.trim()==="") return;
+dados.push({
+c:cat.value,
+d:desc.value,
+v:+val.value
+});
 localStorage.dados=JSON.stringify(dados);
+desc.value="";
 val.value="";
 update();
 }
@@ -145,12 +161,25 @@ update();
 function update(){
 let total=dados.reduce((a,b)=>a+b.v,0);
 let sobra=rendaV-total;
+
 r.innerText=rendaV.toFixed(2);
 d.innerText=total.toFixed(2);
 s.innerText=sobra.toFixed(2);
+
 status.innerText=sobra>=0?"✅ Situação saudável":"⚠ Gastos acima da renda";
 status.className=sobra>=0?"ok":"bad";
+
+renderLista();
 grafico();
+}
+
+function renderLista(){
+lista.innerHTML="";
+dados.slice().reverse().forEach(x=>{
+const li=document.createElement("li");
+li.innerHTML=`<strong>${x.c}</strong> - ${x.d}: R$ ${x.v.toFixed(2)}`;
+lista.appendChild(li);
+});
 }
 
 function grafico(){
@@ -166,17 +195,13 @@ options:{plugins:{legend:{position:"bottom"}}}
 
 /* Exportações */
 function exportarCSV(){
-let csv="Categoria,Valor\n";
-dados.forEach(x=>csv+=`${x.c},${x.v}\n`);
+let csv="Categoria,Descrição,Valor\n";
+dados.forEach(x=>csv+=`${x.c},${x.d},${x.v}\n`);
 download(csv,"faststile.csv","text/csv");
 }
 
 function backup(){
-const data={
-renda:rendaV,
-dados,
-tema:localStorage.tema
-};
+const data={renda:rendaV,dados,tema:localStorage.tema};
 download(JSON.stringify(data),"faststile-backup.json","application/json");
 }
 
