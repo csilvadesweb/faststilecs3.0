@@ -1,83 +1,133 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>FastStile</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>FastStile</title>
+
+  <!-- Responsivo -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<header>
-  <h1>FastStile</h1>
-  <p>Economia Inteligente</p>
-</header>
+  <!-- Cabeçalho -->
+  <header>
+    <h1>FastStile</h1>
+    <p>Economia Inteligente</p>
+  </header>
 
-<section class="card">
-  <h2>Dashboard</h2>
+  <!-- Dashboard -->
+  <section class="card">
+    <h2>Dashboard Inteligente</h2>
 
-  <label>Renda Mensal</label>
-  <input type="number" id="renda" placeholder="0" />
+    <label for="renda">Renda Mensal</label>
+    <input
+      type="number"
+      id="renda"
+      placeholder="0"
+      value="0"
+      inputmode="decimal"
+    />
 
-  <div class="kpis">
-    <div><strong>Despesas</strong><span id="totalDespesas">R$ 0</span></div>
-    <div><strong>Sobra</strong><span id="sobra">R$ 0</span></div>
-    <div><strong>Status</strong><span id="status">---</span></div>
-  </div>
+    <div class="kpis">
+      <div class="kpi">
+        <strong>Despesas</strong>
+        <span id="totalDespesas">R$ 0,00</span>
+      </div>
 
-  <label>Meta Mensal</label>
-  <input type="number" id="meta" placeholder="0" />
+      <div class="kpi">
+        <strong>Sobra</strong>
+        <span id="sobra">R$ 0,00</span>
+      </div>
 
-  <button onclick="salvarDados()">Salvar</button>
-</section>
+      <div class="kpi">
+        <strong>Status</strong>
+        <span id="status">---</span>
+      </div>
+    </div>
 
-<section class="card">
-  <h2>Adicionar Despesa</h2>
-  <input type="number" id="valorDespesa" placeholder="Valor" />
-  <select id="categoria">
-    <option>DZ</option>
-    <option>Alimentação + Feira</option>
-    <option>Internet</option>
-    <option>Telefone</option>
-    <option>Moradia</option>
-    <option>INSS</option>
-    <option>Remédio</option>
-    <option>Pet</option>
-    <option>Combustível</option>
-    <option>Restaurante</option>
-    <option>Passeios</option>
-    <option>Férias</option>
-    <option>Cinema</option>
-    <option>Imprevistos</option>
-    <option>Emergências</option>
-    <option>Outras Despesas</option>
-  </select>
-  <button onclick="addDespesa()">Adicionar</button>
-</section>
+    <label for="meta">Meta Mensal</label>
+    <input
+      type="number"
+      id="meta"
+      placeholder="0"
+      value="0"
+      inputmode="decimal"
+    />
 
-<section class="card">
-  <h2>Gráficos</h2>
-  <canvas id="grafico"></canvas>
-</section>
+    <button onclick="salvarDados()">Salvar</button>
+  </section>
 
-<section class="card">
-  <h2>Histórico Mensal</h2>
-  <select id="mes" onchange="trocarMes()"></select>
-</section>
+  <!-- Adicionar Despesa -->
+  <section class="card">
+    <h2>Adicionar Despesa</h2>
 
-<section class="card">
-  <h2>Backup</h2>
-  <button onclick="exportarCSV()">Exportar CSV</button>
-  <input type="file" onchange="importarCSV(event)" />
-</section>
+    <input
+      type="number"
+      id="valorDespesa"
+      placeholder="Valor da despesa"
+      inputmode="decimal"
+    />
 
-<script src="app.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
+    <select id="categoria">
+      <option>DZ</option>
+      <option>Alimentação + Feira</option>
+      <option>Internet</option>
+      <option>Telefone</option>
+      <option>Moradia</option>
+      <option>INSS</option>
+      <option>Remédio</option>
+      <option>Pet</option>
+      <option>Combustível</option>
+      <option>Restaurante</option>
+      <option>Passeios</option>
+      <option>Férias</option>
+      <option>Cinema</option>
+      <option>Imprevistos</option>
+      <option>Emergências</option>
+      <option>Outras Despesas</option>
+    </select>
+
+    <button onclick="addDespesa()">Adicionar</button>
+  </section>
+
+  <!-- Gráfico -->
+  <section class="card">
+    <h2>Gráfico de Despesas</h2>
+    <canvas id="grafico"></canvas>
+  </section>
+
+  <!-- Histórico -->
+  <section class="card">
+    <h2>Histórico Mensal</h2>
+    <select id="mes" onchange="trocarMes()"></select>
+  </section>
+
+  <!-- Backup -->
+  <section class="card">
+    <h2>Backup de Dados</h2>
+    <button onclick="exportarCSV()">Exportar CSV</button>
+    <input type="file" accept=".csv" onchange="importarCSV(event)">
+  </section>
+
+  <!-- JavaScript principal -->
+  <script src="script.js"></script>
+
+  <!-- Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+
 </body>
 </html>
