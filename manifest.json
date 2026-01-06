@@ -1,7 +1,7 @@
 {
   "name": "FastStile – Economia Inteligente",
   "short_name": "FastStile",
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0D6EFD",
   "theme_color": "#0D6EFD",
