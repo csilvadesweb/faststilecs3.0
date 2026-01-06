@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>FastStile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<header class="topo">
+  <h1>FastStile</h1>
+  <span>Controle Inteligente</span>
+</header>
+
+<main>
+
+<section class="card resumo">
+  <h2>Total de Gastos</h2>
+  <p id="total">R$ 0,00</p>
+</section>
+
+<section class="card">
+  <h2>Adicionar Gasto</h2>
+  <input type="text" id="descricao" placeholder="Descrição">
+  <input type="number" id="valor" placeholder="Valor (R$)">
+  <button onclick="adicionarGasto()">Adicionar</button>
+</section>
+
+<section class="card">
+  <h2>📊 Evolução de Gastos</h2>
+  <canvas id="grafico"></canvas>
+</section>
+
+<section class="card">
+  <h2>Histórico</h2>
+  <ul id="lista"></ul>
+</section>
+
+</main>
+
+<footer>
+  <p>FastStile © 2026</p>
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+
+</body>
+</html>
