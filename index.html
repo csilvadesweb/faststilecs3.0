@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>FastStile • Controle Financeiro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --azul:#4267c7;
+  --cinza:#f2f2f2;
+  --verde:#2ecc71;
+  --vermelho:#e74c3c;
+}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:#e6e6e6;
+}
+header{
+  background:var(--azul);
+  color:#fff;
+  padding:16px;
+  font-size:26px;
+  font-weight:bold;
+}
+.container{
+  padding:16px;
+}
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+h2{
+  margin:0 0 10px;
+}
+input, select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+  margin-bottom:10px;
+}
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  background:var(--azul);
+  color:#fff;
+  cursor:pointer;
+}
+button.sec{
+  background:#999;
+  margin-top:8px;
+}
+.resumo div{
+  margin:6px 0;
+  font-size:16px;
+}
+.status{
+  font-weight:bold;
+  font-size:18px;
+}
+.ok{color:var(--verde);}
+.bad{color:var(--vermelho);}
+canvas{
+  margin-top:10px;
+}
+footer{
+  text-align:center;
+  font-size:12px;
+  color:#666;
+  padding:10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>FastStile 💰</header>
+
+<div class="container">
+
+<!-- RENDA -->
+<div class="card">
+  <h2>💼 Renda Mensal</h2>
+  <input type="number" id="renda" placeholder="Digite sua renda">
+  <button onclick="salvarRenda()">Salvar Renda</button>
+</div>
+
+<!-- DESPESAS -->
+<div class="card">
+  <h2>📌 Nova Despesa</h2>
+
+  <select id="categoria">
+    <option value="Prioridade">⭐ Prioridade</option>
+    <option value="Alimentação">🍽 Alimentação</option>
+    <option value="Transporte">🚗 Transporte</option>
+    <option value="Casa">🏠 Casa</option>
+    <option value="Saúde">💊 Saúde</option>
+    <option value="Educação">📚 Educação</option>
+    <option value="Lazer">🎉 Lazer</option>
+    <option value="Assinaturas">📺 Assinaturas</option>
+    <option value="Investimentos">📈 Investimentos</option>
+    <option value="Impostos">🧾 Impostos</option>
+    <option value="Outros">📦 Outros</option>
+  </select>
+
+  <input type="number" id="valor" placeholder="Valor da despesa">
+  <button onclick="adicionarDespesa()">Adicionar</button>
+</div>
+
+<!-- RESUMO -->
+<div class="card resumo">
+  <h2>📊 Resumo Financeiro</h2>
+  <div>Renda: R$ <span id="resRenda">0</span></div>
+  <div>Despesas: R$ <span id="resDespesa">0</span></div>
+  <div>Sobra: R$ <span id="resSobra">0</span></div>
+  <div class="status" id="status"></div>
+</div>
+
+<!-- GRÁFICO -->
+<div class="card">
+  <h2>📈 Gráfico de Despesas</h2>
+  <canvas id="grafico"></canvas>
+</div>
+
+<!-- AÇÕES -->
+<div class="card">
+  <button onclick="limparTudo()" class="sec">🧹 Limpar / Zerar Tudo</button>
+</div>
+
+</div>
+
+<footer>FastStile • 100% GitHub Pages</footer>
+
+<script>
+let renda = Number(localStorage.getItem("renda")) || 0;
+let despesas = JSON.parse(localStorage.getItem("despesas")) || [];
+let chart;
+
+document.getElementById("renda").value = renda;
+
+function salvarRenda(){
+  renda = Number(document.getElementById("renda").value);
+  localStorage.setItem("renda", renda);
+  atualizar();
+}
+
+function adicionarDespesa(){
+  const cat = categoria.value;
+  const val = Number(valor.value);
+  if(val<=0) return;
+  despesas.push({cat,val});
+  localStorage.setItem("despesas", JSON.stringify(despesas));
+  valor.value="";
+  atualizar();
+}
+
+function atualizar(){
+  const total = despesas.reduce((s,d)=>s+d.val,0);
+  const sobra = renda - total;
+
+  resRenda.innerText = renda.toFixed(2);
+  resDespesa.innerText = total.toFixed(2);
+  resSobra.innerText = sobra.toFixed(2);
+
+  if(sobra>=0){
+    status.innerText="✅ Situação saudável";
+    status.className="status ok";
+  }else{
+    status.innerText="⚠ Gastos acima da renda";
+    status.className="status bad";
+  }
+  atualizarGrafico();
+}
+
+function atualizarGrafico(){
+  const mapa = {};
+  despesas.forEach(d=>{
+    mapa[d.cat]=(mapa[d.cat]||0)+d.val;
+  });
+
+  if(chart) chart.destroy();
+  chart = new Chart(grafico,{
+    type:'doughnut',
+    data:{
+      labels:Object.keys(mapa),
+      datasets:[{
+        data:Object.values(mapa)
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{position:'bottom'}
+      }
+    }
+  });
+}
+
+function limparTudo(){
+  if(confirm("Deseja zerar tudo?")){
+    renda=0;
+    despesas=[];
+    localStorage.clear();
+    document.getElementById("renda").value="";
+    atualizar();
+  }
+}
+
+atualizar();
+</script>
+
+</body>
+</html>
