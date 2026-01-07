@@ -1,239 +1,62 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FastStile CS</title>
 
-<meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#0d6efd">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
-<style>
-:root{
- --bg:#0f172a;
- --card:#111827;
- --text:#e5e7eb;
- --accent:#22c55e;
- --danger:#ef4444;
- --warn:#facc15;
- --shadow:0 8px 25px rgba(0,0,0,.45);
-}
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:system-ui;
- background:var(--bg);
- color:var(--text);
- padding-bottom:95px;
-}
-.container{
- max-width:420px;
- margin:auto;
- padding:15px;
-}
-.card{
- background:var(--card);
- padding:15px;
- border-radius:16px;
- box-shadow:var(--shadow);
- margin-bottom:15px;
-}
-h2{margin:0 0 10px}
-input,select,button{
- width:100%;
- padding:10px;
- border-radius:10px;
- border:none;
- margin-bottom:8px;
-}
-button{background:var(--accent);font-weight:700}
-button.danger{background:var(--danger);color:#fff}
-.list div{
- padding:6px 0;
- border-bottom:1px solid #1f2937;
- font-size:13px;
-}
-.alerta{
- text-align:center;
- font-size:12px;
- color:var(--warn);
- margin-top:6px;
-}
-footer.fixo{
- position:fixed;
- bottom:0;
- width:100%;
- background:#020617;
- box-shadow:var(--shadow);
-}
-.footer-box{
- max-width:420px;
- margin:auto;
- padding:10px;
- display:flex;
- gap:8px;
-}
-.footer-box button{flex:1;font-size:13px}
-footer.legal{
- text-align:center;
- font-size:11px;
- opacity:.6;
- margin:20px 0;
-}
-</style>
 </head>
 
 <body>
 
-<div class="container">
+<header>
+  <h1>FastStile CS</h1>
+  <button id="toggleTheme">🌙</button>
+</header>
 
- <!-- RENDA -->
- <div class="card">
+<main>
+
+<section class="card">
   <h2>Renda Mensal</h2>
-  <input id="renda" type="number" placeholder="Valor da renda">
-  <button onclick="salvarRenda()">Salvar renda</button>
- </div>
+  <input type="number" id="renda" placeholder="Valor da renda">
+</section>
 
- <!-- RESUMO (MESMO PADRÃO DOS OUTROS) -->
- <div class="card">
+<section class="card resumo">
   <h2>Resumo Financeiro</h2>
-  <div>Renda: <b id="rendaResumo">R$ 0,00</b></div>
-  <div>Despesas: <b id="despResumo">R$ 0,00</b></div>
-  <div>Sobra: <b id="sobraResumo">R$ 0,00</b></div>
-  <div class="alerta">⚠️ Atenção aos Gastos</div>
- </div>
+  <p>Renda: <span id="rResumo">R$ 0,00</span></p>
+  <p>Despesas: <span id="dResumo">R$ 0,00</span></p>
+  <p class="sobra">Sobra: <span id="sResumo">R$ 0,00</span></p>
+</section>
 
- <!-- DESPESA -->
- <div class="card">
+<section class="card">
   <h2>Nova Despesa</h2>
-  <select id="categoria">
-   <option>Alimentação</option>
-   <option>Transporte</option>
-   <option>Casa</option>
-   <option>Saúde</option>
-   <option>Lazer</option>
-   <option>Outros</option>
-  </select>
-  <input id="descDespesa" placeholder="Descrição">
-  <input id="valorDespesa" type="number" placeholder="Valor">
-  <button onclick="addDespesa()">Adicionar</button>
- </div>
+  <input id="desc" placeholder="Descrição">
+  <input type="number" id="valor" placeholder="Valor">
+</section>
 
- <!-- GRÁFICO -->
- <div class="card">
-  <h2>Gráfico</h2>
-  <canvas id="grafico"></canvas>
- </div>
+<section class="card">
+  <h2>Atenção aos Gastos</h2>
+  <ul id="lista"></ul>
+</section>
 
- <!-- HISTÓRICO -->
- <div class="card">
-  <h2>Histórico</h2>
-  <div id="historico" class="list"></div>
- </div>
+</main>
 
-</div>
-
-<footer class="fixo">
- <div class="footer-box">
-  <button onclick="exportarCSV()">CSV</button>
-  <button onclick="exportarPDF()">PDF</button>
-  <button class="danger" onclick="resetar()">Limpar</button>
- </div>
+<footer>
+  <button onclick="salvar()">Salvar</button>
+  <button onclick="backup()">Backup</button>
+  <button onclick="exportarPDF()">Exportar PDF</button>
+  <button class="danger" onclick="limpar()">Limpar</button>
 </footer>
 
-<footer class="legal">
-© 2026 FastStile CS • PWA Premium
-</footer>
+<small class="legal">
+© 2026 FastStile CS • Código protegido • C.Silva
+</small>
 
-<script>
-if("serviceWorker" in navigator){
- navigator.serviceWorker.register("sw.js");
-}
-
-let dados=JSON.parse(localStorage.getItem("faststile"))||{renda:0,despesas:[]};
-
-function salvar(){localStorage.setItem("faststile",JSON.stringify(dados));atualizar()}
-function salvarRenda(){dados.renda=Number(renda.value);salvar()}
-
-function addDespesa(){
- dados.despesas.push({
-  cat:categoria.value,
-  desc:descDespesa.value,
-  val:Number(valorDespesa.value),
-  data:new Date().toLocaleDateString()
- });
- descDespesa.value="";
- valorDespesa.value="";
- salvar();
-}
-
-function atualizar(){
- let total=dados.despesas.reduce((s,d)=>s+d.val,0);
- let sobra=dados.renda-total;
-
- rendaResumo.textContent=`R$ ${dados.renda.toFixed(2)}`;
- despResumo.textContent=`R$ ${total.toFixed(2)}`;
- sobraResumo.textContent=`R$ ${sobra.toFixed(2)}`;
-
- historico.innerHTML="";
- dados.despesas.forEach(d=>{
-  historico.innerHTML+=`<div>[${d.cat}] ${d.desc} - R$ ${d.val.toFixed(2)}</div>`;
- });
-
- atualizarGrafico(total);
-}
-
-let chart;
-function atualizarGrafico(total){
- if(chart)chart.destroy();
- chart=new Chart(grafico,{
-  type:"doughnut",
-  data:{
-   labels:["Despesas","Sobra"],
-   datasets:[{
-    data:[total,Math.max(dados.renda-total,0)],
-    backgroundColor:["#ef4444","#22c55e"]
-   }]
-  }
- });
-}
-
-function exportarCSV(){
- let csv="Categoria,Descrição,Valor,Data\n";
- dados.despesas.forEach(d=>{
-  csv+=`${d.cat},${d.desc},${d.val},${d.data}\n`;
- });
- let blob=new Blob([csv],{type:"text/csv"});
- let a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="faststile.csv";
- a.click();
-}
-
-function exportarPDF(){
- const {jsPDF}=window.jspdf;
- const pdf=new jsPDF();
- let y=10;
- pdf.text("FastStile CS - Relatório",10,y);y+=10;
- dados.despesas.forEach(d=>{
-  pdf.text(`${d.cat} | ${d.desc} | R$ ${d.val}`,10,y);
-  y+=7;
- });
- pdf.save("faststile.pdf");
-}
-
-function resetar(){
- if(confirm("Apagar tudo?")){
-  localStorage.removeItem("faststile");
-  location.reload();
- }
-}
-
-atualizar();
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
