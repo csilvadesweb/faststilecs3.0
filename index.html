@@ -3,11 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FastStile CS • Premium</title>
+<title>FastStile CS</title>
 
-<meta name="author" content="FASTSTILE-CS-LICENSED">
-<meta name="copyright" content="© 2026 C. Silva">
-<meta name="license" content="Uso pessoal e não comercial">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -50,31 +49,18 @@ input,select,button{
  border:none;
  margin-bottom:8px;
 }
-button{
- background:var(--accent);
- font-weight:700;
-}
-button.danger{
- background:var(--danger);
- color:#fff;
-}
-.resumo-box{
- text-align:center;
- font-size:14px;
-}
-.resumo-box div{
- margin:4px 0;
+button{background:var(--accent);font-weight:700}
+button.danger{background:var(--danger);color:#fff}
+.list div{
+ padding:6px 0;
+ border-bottom:1px solid #1f2937;
+ font-size:13px;
 }
 .alerta{
  text-align:center;
  font-size:12px;
  color:var(--warn);
  margin-top:6px;
-}
-.list div{
- padding:6px 0;
- border-bottom:1px solid #1f2937;
- font-size:13px;
 }
 footer.fixo{
  position:fixed;
@@ -90,10 +76,7 @@ footer.fixo{
  display:flex;
  gap:8px;
 }
-.footer-box button{
- flex:1;
- font-size:13px;
-}
+.footer-box button{flex:1;font-size:13px}
 footer.legal{
  text-align:center;
  font-size:11px;
@@ -111,13 +94,12 @@ footer.legal{
  <div class="card">
   <h2>Renda Mensal</h2>
   <input id="renda" type="number" placeholder="Valor da renda">
-  <input id="rendaDesc" placeholder="Descrição">
   <button onclick="salvarRenda()">Salvar renda</button>
  </div>
 
- <!-- RESUMO (POSIÇÃO CORRETA) -->
- <div class="card resumo-box">
-  <strong>Resumo Financeiro</strong>
+ <!-- RESUMO (MESMO PADRÃO DOS OUTROS) -->
+ <div class="card">
+  <h2>Resumo Financeiro</h2>
   <div>Renda: <b id="rendaResumo">R$ 0,00</b></div>
   <div>Despesas: <b id="despResumo">R$ 0,00</b></div>
   <div>Sobra: <b id="sobraResumo">R$ 0,00</b></div>
@@ -128,27 +110,16 @@ footer.legal{
  <div class="card">
   <h2>Nova Despesa</h2>
   <select id="categoria">
-   <option>Prioridade</option>
    <option>Alimentação</option>
    <option>Transporte</option>
    <option>Casa</option>
    <option>Saúde</option>
-   <option>Educação</option>
    <option>Lazer</option>
-   <option>Assinaturas</option>
-   <option>Investimentos</option>
-   <option>Impostos</option>
    <option>Outros</option>
   </select>
   <input id="descDespesa" placeholder="Descrição">
   <input id="valorDespesa" type="number" placeholder="Valor">
   <button onclick="addDespesa()">Adicionar</button>
- </div>
-
- <!-- STATUS -->
- <div class="card">
-  <h2>Status</h2>
-  <div id="status"></div>
  </div>
 
  <!-- GRÁFICO -->
@@ -165,43 +136,27 @@ footer.legal{
 
 </div>
 
-<!-- BOTÕES FIXOS -->
 <footer class="fixo">
  <div class="footer-box">
-  <button onclick="salvar()">Salvar</button>
-  <button onclick="backup()">Backup</button>
-  <button onclick="exportarPDF()">Exportar</button>
+  <button onclick="exportarCSV()">CSV</button>
+  <button onclick="exportarPDF()">PDF</button>
   <button class="danger" onclick="resetar()">Limpar</button>
  </div>
 </footer>
 
 <footer class="legal">
-© 2026 FastStile CS • Código protegido • C. Silva
+© 2026 FastStile CS • PWA Premium
 </footer>
 
 <script>
-(function(){
- const permitido="csilvadesweb.github.io";
- if(!location.host.includes(permitido)&&!location.host.includes("localhost")){
-  document.body.innerHTML="Licença inválida";
-  throw new Error();
- }
-})();
-
-let dados = JSON.parse(localStorage.getItem("faststile")) || {
- renda:0,
- despesas:[]
-};
-
-function salvar(){
- localStorage.setItem("faststile",JSON.stringify(dados));
- atualizar();
+if("serviceWorker" in navigator){
+ navigator.serviceWorker.register("sw.js");
 }
 
-function salvarRenda(){
- dados.renda = Number(renda.value);
- salvar();
-}
+let dados=JSON.parse(localStorage.getItem("faststile"))||{renda:0,despesas:[]};
+
+function salvar(){localStorage.setItem("faststile",JSON.stringify(dados));atualizar()}
+function salvarRenda(){dados.renda=Number(renda.value);salvar()}
 
 function addDespesa(){
  dados.despesas.push({
@@ -223,15 +178,9 @@ function atualizar(){
  despResumo.textContent=`R$ ${total.toFixed(2)}`;
  sobraResumo.textContent=`R$ ${sobra.toFixed(2)}`;
 
- status.innerHTML=
- `Renda: R$ ${dados.renda.toFixed(2)}<br>
- Despesas: R$ ${total.toFixed(2)}<br>
- Sobra: R$ ${sobra.toFixed(2)}`;
-
  historico.innerHTML="";
  dados.despesas.forEach(d=>{
-  historico.innerHTML+=
-  `<div>[${d.cat}] ${d.desc} - R$ ${d.val.toFixed(2)} (${d.data})</div>`;
+  historico.innerHTML+=`<div>[${d.cat}] ${d.desc} - R$ ${d.val.toFixed(2)}</div>`;
  });
 
  atualizarGrafico(total);
@@ -252,46 +201,38 @@ function atualizarGrafico(total){
  });
 }
 
+function exportarCSV(){
+ let csv="Categoria,Descrição,Valor,Data\n";
+ dados.despesas.forEach(d=>{
+  csv+=`${d.cat},${d.desc},${d.val},${d.data}\n`;
+ });
+ let blob=new Blob([csv],{type:"text/csv"});
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="faststile.csv";
+ a.click();
+}
+
 function exportarPDF(){
  const {jsPDF}=window.jspdf;
  const pdf=new jsPDF();
  let y=10;
- let total=dados.despesas.reduce((s,d)=>s+d.val,0);
- let sobra=dados.renda-total;
-
- pdf.text("FastStile CS • Relatório",10,y);y+=10;
- pdf.text(`Renda: R$ ${dados.renda.toFixed(2)}`,10,y);y+=8;
- pdf.text(`Despesas: R$ ${total.toFixed(2)}`,10,y);y+=8;
- pdf.text(`Sobra: R$ ${sobra.toFixed(2)}`,10,y);y+=10;
-
+ pdf.text("FastStile CS - Relatório",10,y);y+=10;
  dados.despesas.forEach(d=>{
-  pdf.text(`- ${d.cat} | ${d.desc} | R$ ${d.val.toFixed(2)} | ${d.data}`,10,y);
-  y+=7;if(y>280){pdf.addPage();y=10;}
+  pdf.text(`${d.cat} | ${d.desc} | R$ ${d.val}`,10,y);
+  y+=7;
  });
- pdf.save("faststile-premium.pdf");
-}
-
-function backup(){
- const blob=new Blob([JSON.stringify(dados,null,2)],{type:"application/json"});
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob);
- a.download="faststile-backup.json";
- a.click();
+ pdf.save("faststile.pdf");
 }
 
 function resetar(){
- if(confirm("Deseja apagar tudo?")){
+ if(confirm("Apagar tudo?")){
   localStorage.removeItem("faststile");
   location.reload();
  }
 }
 
 atualizar();
-
-document.addEventListener("contextmenu",e=>e.preventDefault());
-document.addEventListener("keydown",e=>{
- if(e.key==="F12"||(e.ctrlKey&&e.shiftKey))e.preventDefault();
-});
 </script>
 
 </body>
