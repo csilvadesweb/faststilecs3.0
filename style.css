@@ -1,97 +1,15 @@
-:root {
+:root{
   --bg:#0f172a;
-  --card:#111827;
-  --text:#e5e7eb;
-  --accent:#0d6efd;
-  --danger:#ef4444;
+  --text:#f8fafc;
+  --card:#1e293b;
 }
-
-[data-theme="light"] {
-  --bg:#f4f6fb;
-  --card:#ffffff;
-  --text:#111827;
-}
-
-* { box-sizing:border-box; font-family:system-ui; }
-
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-}
-
-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:15px;
-  background:var(--accent);
-  color:#fff;
-}
-
-header button {
-  background:none;
-  border:none;
-  font-size:18px;
-  color:#fff;
-}
-
-main { padding:15px; }
-
-.card {
-  background:var(--card);
-  padding:15px;
-  border-radius:14px;
-  margin-bottom:15px;
-  box-shadow:0 6px 18px rgba(0,0,0,.35);
-}
-
-.card input {
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:8px;
-  border:none;
-}
-
-.resumo p { margin:6px 0; }
-.sobra { font-weight:bold; color:#22c55e; }
-
-ul { list-style:none; padding:0; margin:0; }
-
-li {
-  display:flex;
-  justify-content:space-between;
-  padding:6px 0;
-  border-bottom:1px solid #334155;
-  font-size:14px;
-}
-
-footer {
-  position:sticky;
-  bottom:0;
-  background:var(--card);
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:6px;
-  padding:10px;
-}
-
-footer button {
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:var(--accent);
-  color:#fff;
-  font-weight:600;
-}
-
-footer .danger { background:var(--danger); }
-
-.legal {
-  display:block;
-  text-align:center;
-  font-size:11px;
-  opacity:.6;
-  padding:8px;
-}
+.light{--bg:#f8fafc;--text:#020617;--card:#e5e7eb}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial}
+header{display:flex;justify-content:space-between;padding:1rem;background:#020617}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:1rem}
+.card{background:var(--card);padding:1rem;border-radius:10px;text-align:center}
+.form,.acoes{display:flex;gap:10px;padding:1rem}
+input,select,button{padding:10px;border-radius:6px;border:none}
+button{background:#2563eb;color:#fff}
+ul{list-style:none;padding:0 1rem}
+li{border-bottom:1px solid #334155;padding:4px}
