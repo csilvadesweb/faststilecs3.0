@@ -142,28 +142,15 @@ canvas{
 
 /* RESPONSIVO MOBILE */
 @media (max-width: 600px){
-  header h1{
-    font-size:1.2rem;
-  }
+  header h1{font-size:1.2rem;}
   .form input, .form select, .form button,
-  .acoes button{
-    font-size:0.9rem;
-    padding:8px;
-  }
-  .card{
-    font-size:0.9rem;
-    padding:0.8rem;
-  }
+  .acoes button{font-size:0.9rem;padding:8px;}
+  .card{font-size:0.9rem;padding:0.8rem;}
 }
 
 /* RESPONSIVO TABLET */
 @media (max-width: 900px){
-  header h1{
-    font-size:1.3rem;
-  }
+  header h1{font-size:1.3rem;}
   .form input, .form select, .form button,
-  .acoes button{
-    font-size:1rem;
-    padding:9px;
-  }
+  .acoes button{font-size:1rem;padding:9px;}
 }
