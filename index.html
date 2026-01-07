@@ -1,62 +1,65 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FastStile CS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f172a">
 
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#0d6efd">
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
 <body>
-
 <header>
   <h1>FastStile CS</h1>
-  <button id="toggleTheme">🌙</button>
+  <button onclick="toggleTheme()">🌗</button>
 </header>
 
 <main>
 
-<section class="card">
-  <h2>Renda Mensal</h2>
-  <input type="number" id="renda" placeholder="Valor da renda">
+<section class="cards">
+  <div class="card renda">Renda<br><strong id="renda">R$ 0,00</strong></div>
+  <div class="card despesas">Despesas<br><strong id="despesas">R$ 0,00</strong></div>
+  <div class="card saldo">Saldo<br><strong id="saldo">R$ 0,00</strong></div>
 </section>
 
-<section class="card resumo">
-  <h2>Resumo Financeiro</h2>
-  <p>Renda: <span id="rResumo">R$ 0,00</span></p>
-  <p>Despesas: <span id="dResumo">R$ 0,00</span></p>
-  <p class="sobra">Sobra: <span id="sResumo">R$ 0,00</span></p>
-</section>
-
-<section class="card">
-  <h2>Nova Despesa</h2>
+<section class="form">
   <input id="desc" placeholder="Descrição">
-  <input type="number" id="valor" placeholder="Valor">
+  <input id="valor" type="number" placeholder="Valor">
+  <select id="tipo">
+    <option value="renda">Renda</option>
+    <option value="despesa">Despesa</option>
+  </select>
+  <button onclick="add()">Salvar</button>
 </section>
 
-<section class="card">
-  <h2>Atenção aos Gastos</h2>
-  <ul id="lista"></ul>
+<section id="pdfArea">
+  <h2>Resumo Financeiro</h2>
+  <canvas id="grafico"></canvas>
+  <h3>Histórico</h3>
+  <ul id="historico"></ul>
 </section>
+
+<section class="acoes">
+  <button onclick="gerarPDF()">📄 Exportar PDF Profissional</button>
+</section>
+
+<footer>
+  <a href="privacy.html">Política de Privacidade</a>
+</footer>
 
 </main>
 
-<footer>
-  <button onclick="salvar()">Salvar</button>
-  <button onclick="backup()">Backup</button>
-  <button onclick="exportarPDF()">Exportar PDF</button>
-  <button class="danger" onclick="limpar()">Limpar</button>
-</footer>
-
-<small class="legal">
-© 2026 FastStile CS • Código protegido • C.Silva
-</small>
-
 <script src="script.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 </body>
 </html>
