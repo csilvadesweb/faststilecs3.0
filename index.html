@@ -10,8 +10,8 @@
 <meta name="copyright" content="© 2026 C. Silva">
 <meta name="license" content="Uso pessoal e não comercial">
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
 :root{
@@ -25,7 +25,7 @@
 
 body{
   margin:0;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont;
+  font-family:system-ui;
   background:var(--bg);
   color:var(--text);
 }
@@ -52,25 +52,22 @@ input,select,button{
   border-radius:10px;
   border:none;
   margin-bottom:8px;
-  font-size:14px;
 }
 
 button{
   background:var(--accent);
-  color:#000;
   font-weight:700;
 }
 
-button.danger{background:var(--danger);color:#fff}
-
-.list{
-  font-size:13px;
-  opacity:.9;
+button.danger{
+  background:var(--danger);
+  color:#fff;
 }
 
 .list div{
   padding:6px 0;
   border-bottom:1px solid #1f2937;
+  font-size:13px;
 }
 
 footer{
@@ -110,8 +107,8 @@ footer{
 <option>Outros</option>
 </select>
 
-<input id="descDespesa" placeholder="Descrição (luz, água, telefone)">
-<input id="valorDespesa" type="number" placeholder="Valor da despesa">
+<input id="descDespesa" placeholder="Descrição da despesa">
+<input id="valorDespesa" type="number" placeholder="Valor">
 
 <button onclick="addDespesa()">Adicionar</button>
 </div>
@@ -127,11 +124,12 @@ footer{
 </div>
 
 <div class="card">
-<h2>Histórico</h2>
+<h2>Histórico (ordem de lançamento)</h2>
 <div id="historico" class="list"></div>
 </div>
 
 <div class="card">
+<button onclick="exportarPDF()">Exportar PDF</button>
 <button class="danger" onclick="resetar()">Zerar tudo</button>
 </div>
 
@@ -142,9 +140,7 @@ footer{
 </footer>
 
 <script>
-/* FASTSTILE CS – COMMERCIAL PROTECTION
-   Autor: C. Silva (CSilvaDesWeb)
-   ID: FSCS-COMM-88XK-2026 */
+/* FASTSTILE CS – COMMERCIAL PROTECTION */
 
 (function dominioSeguro(){
  const permitido="csilvadesweb.github.io";
@@ -154,7 +150,7 @@ footer{
  }
 })();
 
-let dados=JSON.parse(localStorage.getItem("faststile"))||{
+let dados = JSON.parse(localStorage.getItem("faststile")) || {
  renda:0,
  despesas:[]
 };
@@ -165,16 +161,16 @@ function salvar(){
 }
 
 function salvarRenda(){
- dados.renda=Number(renda.value);
+ dados.renda = Number(renda.value);
  salvar();
 }
 
 function addDespesa(){
- dados.despesas.push({
-  cat:categoria.value,
-  desc:descDespesa.value,
-  val:Number(valorDespesa.value),
-  data:new Date().toLocaleDateString()
+ dados.despesas.push({   // ✅ PRIMEIRO → ÚLTIMO
+  cat: categoria.value,
+  desc: descDespesa.value,
+  val: Number(valorDespesa.value),
+  data: new Date().toLocaleDateString()
  });
  descDespesa.value="";
  valorDespesa.value="";
@@ -182,10 +178,10 @@ function addDespesa(){
 }
 
 function atualizar(){
- let total=dados.despesas.reduce((s,d)=>s+d.val,0);
- let sobra=dados.renda-total;
+ let total = dados.despesas.reduce((s,d)=>s+d.val,0);
+ let sobra = dados.renda - total;
 
- status.innerHTML=`
+ status.innerHTML = `
  Renda: R$ ${dados.renda.toFixed(2)}<br>
  Despesas: R$ ${total.toFixed(2)}<br>
  Sobra: R$ ${sobra.toFixed(2)}
@@ -193,7 +189,9 @@ function atualizar(){
 
  historico.innerHTML="";
  dados.despesas.forEach(d=>{
-  historico.innerHTML+=`<div>[${d.cat}] ${d.desc} - R$ ${d.val}</div>`;
+  historico.innerHTML += `
+   <div>[${d.cat}] ${d.desc} - R$ ${d.val.toFixed(2)} (${d.data})</div>
+  `;
  });
 
  atualizarGrafico(total);
@@ -201,17 +199,41 @@ function atualizar(){
 
 let chart;
 function atualizarGrafico(total){
- if(chart)chart.destroy();
- chart=new Chart(grafico,{
+ if(chart) chart.destroy();
+ chart = new Chart(grafico,{
   type:"doughnut",
   data:{
    labels:["Despesas","Sobra"],
    datasets:[{
-    data:[total,Math.max(dados.renda-total,0)],
+    data:[total, Math.max(dados.renda-total,0)],
     backgroundColor:["#ef4444","#22c55e"]
    }]
   }
  });
+}
+
+function exportarPDF(){
+ const { jsPDF } = window.jspdf;
+ const pdf = new jsPDF();
+
+ let y = 10;
+ let total = dados.despesas.reduce((s,d)=>s+d.val,0);
+ let sobra = dados.renda - total;
+
+ pdf.text("FastStile CS - Relatório Financeiro",10,y); y+=10;
+ pdf.text(`Renda: R$ ${dados.renda.toFixed(2)}`,10,y); y+=8;
+ pdf.text(`Total de despesas: R$ ${total.toFixed(2)}`,10,y); y+=8;
+ pdf.text(`Sobra: R$ ${sobra.toFixed(2)}`,10,y); y+=10;
+
+ pdf.text("Histórico de Despesas:",10,y); y+=8;
+
+ dados.despesas.forEach(d=>{
+  pdf.text(`- ${d.cat} | ${d.desc} | R$ ${d.val.toFixed(2)} | ${d.data}`,10,y);
+  y+=7;
+  if(y>280){ pdf.addPage(); y=10; }
+ });
+
+ pdf.save("faststile-relatorio.pdf");
 }
 
 function resetar(){
