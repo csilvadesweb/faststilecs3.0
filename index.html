@@ -28,35 +28,13 @@ body{
  font-family:system-ui;
  background:var(--bg);
  color:var(--text);
- padding-top:130px;
  padding-bottom:95px;
 }
-header,footer.fixo{
- position:fixed;
- width:100%;
- background:#020617;
- z-index:999;
- box-shadow:var(--shadow);
-}
-header{top:0}
-footer.fixo{bottom:0}
-.header-box,.footer-box,.container{
+.container{
  max-width:420px;
  margin:auto;
- padding:12px;
+ padding:15px;
 }
-.resumo{
- display:flex;
- justify-content:space-between;
- font-size:13px;
-}
-.alerta{
- text-align:center;
- font-size:12px;
- color:var(--warn);
- margin-top:6px;
-}
-.container{padding:15px}
 .card{
  background:var(--card);
  padding:15px;
@@ -72,13 +50,48 @@ input,select,button{
  border:none;
  margin-bottom:8px;
 }
-button{background:var(--accent);font-weight:700}
-button.danger{background:var(--danger);color:#fff}
-.footer-box{display:flex;gap:8px}
-.footer-box button{flex:1;font-size:13px}
+button{
+ background:var(--accent);
+ font-weight:700;
+}
+button.danger{
+ background:var(--danger);
+ color:#fff;
+}
+.resumo-box{
+ text-align:center;
+ font-size:14px;
+}
+.resumo-box div{
+ margin:4px 0;
+}
+.alerta{
+ text-align:center;
+ font-size:12px;
+ color:var(--warn);
+ margin-top:6px;
+}
 .list div{
  padding:6px 0;
  border-bottom:1px solid #1f2937;
+ font-size:13px;
+}
+footer.fixo{
+ position:fixed;
+ bottom:0;
+ width:100%;
+ background:#020617;
+ box-shadow:var(--shadow);
+}
+.footer-box{
+ max-width:420px;
+ margin:auto;
+ padding:10px;
+ display:flex;
+ gap:8px;
+}
+.footer-box button{
+ flex:1;
  font-size:13px;
 }
 footer.legal{
@@ -92,20 +105,9 @@ footer.legal{
 
 <body>
 
-<header>
- <div class="header-box">
-  <strong>Resumo Financeiro</strong>
-  <div class="resumo">
-   <span>Renda: <b id="rendaResumo">R$ 0,00</b></span>
-   <span>Despesas: <b id="despResumo">R$ 0,00</b></span>
-   <span>Sobra: <b id="sobraResumo">R$ 0,00</b></span>
-  </div>
-  <div class="alerta">⚠️ Atenção aos Gastos</div>
- </div>
-</header>
-
 <div class="container">
 
+ <!-- RENDA -->
  <div class="card">
   <h2>Renda Mensal</h2>
   <input id="renda" type="number" placeholder="Valor da renda">
@@ -113,6 +115,16 @@ footer.legal{
   <button onclick="salvarRenda()">Salvar renda</button>
  </div>
 
+ <!-- RESUMO (POSIÇÃO CORRETA) -->
+ <div class="card resumo-box">
+  <strong>Resumo Financeiro</strong>
+  <div>Renda: <b id="rendaResumo">R$ 0,00</b></div>
+  <div>Despesas: <b id="despResumo">R$ 0,00</b></div>
+  <div>Sobra: <b id="sobraResumo">R$ 0,00</b></div>
+  <div class="alerta">⚠️ Atenção aos Gastos</div>
+ </div>
+
+ <!-- DESPESA -->
  <div class="card">
   <h2>Nova Despesa</h2>
   <select id="categoria">
@@ -133,16 +145,19 @@ footer.legal{
   <button onclick="addDespesa()">Adicionar</button>
  </div>
 
+ <!-- STATUS -->
  <div class="card">
   <h2>Status</h2>
   <div id="status"></div>
  </div>
 
+ <!-- GRÁFICO -->
  <div class="card">
   <h2>Gráfico</h2>
   <canvas id="grafico"></canvas>
  </div>
 
+ <!-- HISTÓRICO -->
  <div class="card">
   <h2>Histórico</h2>
   <div id="historico" class="list"></div>
@@ -150,6 +165,7 @@ footer.legal{
 
 </div>
 
+<!-- BOTÕES FIXOS -->
 <footer class="fixo">
  <div class="footer-box">
   <button onclick="salvar()">Salvar</button>
@@ -203,14 +219,14 @@ function atualizar(){
  let total=dados.despesas.reduce((s,d)=>s+d.val,0);
  let sobra=dados.renda-total;
 
+ rendaResumo.textContent=`R$ ${dados.renda.toFixed(2)}`;
+ despResumo.textContent=`R$ ${total.toFixed(2)}`;
+ sobraResumo.textContent=`R$ ${sobra.toFixed(2)}`;
+
  status.innerHTML=
  `Renda: R$ ${dados.renda.toFixed(2)}<br>
  Despesas: R$ ${total.toFixed(2)}<br>
  Sobra: R$ ${sobra.toFixed(2)}`;
-
- rendaResumo.textContent=`R$ ${dados.renda.toFixed(2)}`;
- despResumo.textContent=`R$ ${total.toFixed(2)}`;
- sobraResumo.textContent=`R$ ${sobra.toFixed(2)}`;
 
  historico.innerHTML="";
  dados.despesas.forEach(d=>{
@@ -247,7 +263,6 @@ function exportarPDF(){
  pdf.text(`Renda: R$ ${dados.renda.toFixed(2)}`,10,y);y+=8;
  pdf.text(`Despesas: R$ ${total.toFixed(2)}`,10,y);y+=8;
  pdf.text(`Sobra: R$ ${sobra.toFixed(2)}`,10,y);y+=10;
- pdf.text("Histórico:",10,y);y+=8;
 
  dados.despesas.forEach(d=>{
   pdf.text(`- ${d.cat} | ${d.desc} | R$ ${d.val.toFixed(2)} | ${d.data}`,10,y);
