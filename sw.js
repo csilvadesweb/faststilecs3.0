@@ -1,13 +1,6 @@
-self.addEventListener("install",e=>{
-  e.waitUntil(
-    caches.open("faststile-v1").then(cache=>{
-      return cache.addAll(["./","./index.html","./style.css","./script.js"]);
-    })
-  );
+self.addEventListener('install',e=>{
+ e.waitUntil(caches.open('fs').then(c=>c.addAll(['./','index.html','style.css','script.js'])))
 });
-
-self.addEventListener("fetch",e=>{
-  e.respondWith(
-    caches.match(e.request).then(res=>res||fetch(e.request))
-  );
+self.addEventListener('fetch',e=>{
+ e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))
 });
