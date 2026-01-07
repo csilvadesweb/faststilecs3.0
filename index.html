@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>FastStile CS</title>
+<title>FastStile CS • Premium</title>
 
 <meta name="author" content="FASTSTILE-CS-LICENSED">
 <meta name="copyright" content="© 2026 C. Silva">
@@ -15,134 +14,157 @@
 
 <style>
 :root{
-  --bg:#0f172a;
-  --card:#111827;
-  --text:#e5e7eb;
-  --accent:#22c55e;
-  --danger:#ef4444;
-  --shadow:0 8px 25px rgba(0,0,0,.45);
+ --bg:#0f172a;
+ --card:#111827;
+ --text:#e5e7eb;
+ --accent:#22c55e;
+ --danger:#ef4444;
+ --warn:#facc15;
+ --shadow:0 8px 25px rgba(0,0,0,.45);
 }
-
+*{box-sizing:border-box}
 body{
-  margin:0;
-  font-family:system-ui;
-  background:var(--bg);
-  color:var(--text);
+ margin:0;
+ font-family:system-ui;
+ background:var(--bg);
+ color:var(--text);
+ padding-top:130px;
+ padding-bottom:95px;
 }
-
-.container{
-  max-width:420px;
-  margin:auto;
-  padding:15px;
+header,footer.fixo{
+ position:fixed;
+ width:100%;
+ background:#020617;
+ z-index:999;
+ box-shadow:var(--shadow);
 }
-
+header{top:0}
+footer.fixo{bottom:0}
+.header-box,.footer-box,.container{
+ max-width:420px;
+ margin:auto;
+ padding:12px;
+}
+.resumo{
+ display:flex;
+ justify-content:space-between;
+ font-size:13px;
+}
+.alerta{
+ text-align:center;
+ font-size:12px;
+ color:var(--warn);
+ margin-top:6px;
+}
+.container{padding:15px}
 .card{
-  background:var(--card);
-  padding:15px;
-  border-radius:16px;
-  box-shadow:var(--shadow);
-  margin-bottom:15px;
+ background:var(--card);
+ padding:15px;
+ border-radius:16px;
+ box-shadow:var(--shadow);
+ margin-bottom:15px;
 }
-
 h2{margin:0 0 10px}
-
 input,select,button{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  margin-bottom:8px;
+ width:100%;
+ padding:10px;
+ border-radius:10px;
+ border:none;
+ margin-bottom:8px;
 }
-
-button{
-  background:var(--accent);
-  font-weight:700;
-}
-
-button.danger{
-  background:var(--danger);
-  color:#fff;
-}
-
+button{background:var(--accent);font-weight:700}
+button.danger{background:var(--danger);color:#fff}
+.footer-box{display:flex;gap:8px}
+.footer-box button{flex:1;font-size:13px}
 .list div{
-  padding:6px 0;
-  border-bottom:1px solid #1f2937;
-  font-size:13px;
+ padding:6px 0;
+ border-bottom:1px solid #1f2937;
+ font-size:13px;
 }
-
-footer{
-  text-align:center;
-  font-size:11px;
-  opacity:.6;
-  margin:20px 0;
+footer.legal{
+ text-align:center;
+ font-size:11px;
+ opacity:.6;
+ margin:20px 0;
 }
 </style>
 </head>
 
 <body>
 
+<header>
+ <div class="header-box">
+  <strong>Resumo Financeiro</strong>
+  <div class="resumo">
+   <span>Renda: <b id="rendaResumo">R$ 0,00</b></span>
+   <span>Despesas: <b id="despResumo">R$ 0,00</b></span>
+   <span>Sobra: <b id="sobraResumo">R$ 0,00</b></span>
+  </div>
+  <div class="alerta">⚠️ Atenção aos Gastos</div>
+ </div>
+</header>
+
 <div class="container">
 
-<div class="card">
-<h2>Renda Mensal</h2>
-<input id="renda" type="number" placeholder="Valor da renda">
-<input id="rendaDesc" placeholder="Descrição da renda">
-<button onclick="salvarRenda()">Salvar renda</button>
-</div>
+ <div class="card">
+  <h2>Renda Mensal</h2>
+  <input id="renda" type="number" placeholder="Valor da renda">
+  <input id="rendaDesc" placeholder="Descrição">
+  <button onclick="salvarRenda()">Salvar renda</button>
+ </div>
 
-<div class="card">
-<h2>Nova Despesa</h2>
+ <div class="card">
+  <h2>Nova Despesa</h2>
+  <select id="categoria">
+   <option>Prioridade</option>
+   <option>Alimentação</option>
+   <option>Transporte</option>
+   <option>Casa</option>
+   <option>Saúde</option>
+   <option>Educação</option>
+   <option>Lazer</option>
+   <option>Assinaturas</option>
+   <option>Investimentos</option>
+   <option>Impostos</option>
+   <option>Outros</option>
+  </select>
+  <input id="descDespesa" placeholder="Descrição">
+  <input id="valorDespesa" type="number" placeholder="Valor">
+  <button onclick="addDespesa()">Adicionar</button>
+ </div>
 
-<select id="categoria">
-<option>Prioridade</option>
-<option>Alimentação</option>
-<option>Transporte</option>
-<option>Casa</option>
-<option>Saúde</option>
-<option>Educação</option>
-<option>Lazer</option>
-<option>Assinaturas</option>
-<option>Investimentos</option>
-<option>Impostos</option>
-<option>Outros</option>
-</select>
+ <div class="card">
+  <h2>Status</h2>
+  <div id="status"></div>
+ </div>
 
-<input id="descDespesa" placeholder="Descrição da despesa">
-<input id="valorDespesa" type="number" placeholder="Valor">
+ <div class="card">
+  <h2>Gráfico</h2>
+  <canvas id="grafico"></canvas>
+ </div>
 
-<button onclick="addDespesa()">Adicionar</button>
-</div>
-
-<div class="card">
-<h2>Status</h2>
-<div id="status"></div>
-</div>
-
-<div class="card">
-<h2>Gráfico</h2>
-<canvas id="grafico"></canvas>
-</div>
-
-<div class="card">
-<h2>Histórico (ordem de lançamento)</h2>
-<div id="historico" class="list"></div>
-</div>
-
-<div class="card">
-<button onclick="exportarPDF()">Exportar PDF</button>
-<button class="danger" onclick="resetar()">Zerar tudo</button>
-</div>
+ <div class="card">
+  <h2>Histórico</h2>
+  <div id="historico" class="list"></div>
+ </div>
 
 </div>
 
-<footer>
+<footer class="fixo">
+ <div class="footer-box">
+  <button onclick="salvar()">Salvar</button>
+  <button onclick="backup()">Backup</button>
+  <button onclick="exportarPDF()">Exportar</button>
+  <button class="danger" onclick="resetar()">Limpar</button>
+ </div>
+</footer>
+
+<footer class="legal">
 © 2026 FastStile CS • Código protegido • C. Silva
 </footer>
 
 <script>
-/* FASTSTILE CS – COMMERCIAL PROTECTION */
-
-(function dominioSeguro(){
+(function(){
  const permitido="csilvadesweb.github.io";
  if(!location.host.includes(permitido)&&!location.host.includes("localhost")){
   document.body.innerHTML="Licença inválida";
@@ -166,11 +188,11 @@ function salvarRenda(){
 }
 
 function addDespesa(){
- dados.despesas.push({   // ✅ PRIMEIRO → ÚLTIMO
-  cat: categoria.value,
-  desc: descDespesa.value,
-  val: Number(valorDespesa.value),
-  data: new Date().toLocaleDateString()
+ dados.despesas.push({
+  cat:categoria.value,
+  desc:descDespesa.value,
+  val:Number(valorDespesa.value),
+  data:new Date().toLocaleDateString()
  });
  descDespesa.value="";
  valorDespesa.value="";
@@ -178,20 +200,22 @@ function addDespesa(){
 }
 
 function atualizar(){
- let total = dados.despesas.reduce((s,d)=>s+d.val,0);
- let sobra = dados.renda - total;
+ let total=dados.despesas.reduce((s,d)=>s+d.val,0);
+ let sobra=dados.renda-total;
 
- status.innerHTML = `
- Renda: R$ ${dados.renda.toFixed(2)}<br>
+ status.innerHTML=
+ `Renda: R$ ${dados.renda.toFixed(2)}<br>
  Despesas: R$ ${total.toFixed(2)}<br>
- Sobra: R$ ${sobra.toFixed(2)}
- `;
+ Sobra: R$ ${sobra.toFixed(2)}`;
+
+ rendaResumo.textContent=`R$ ${dados.renda.toFixed(2)}`;
+ despResumo.textContent=`R$ ${total.toFixed(2)}`;
+ sobraResumo.textContent=`R$ ${sobra.toFixed(2)}`;
 
  historico.innerHTML="";
  dados.despesas.forEach(d=>{
-  historico.innerHTML += `
-   <div>[${d.cat}] ${d.desc} - R$ ${d.val.toFixed(2)} (${d.data})</div>
-  `;
+  historico.innerHTML+=
+  `<div>[${d.cat}] ${d.desc} - R$ ${d.val.toFixed(2)} (${d.data})</div>`;
  });
 
  atualizarGrafico(total);
@@ -199,13 +223,13 @@ function atualizar(){
 
 let chart;
 function atualizarGrafico(total){
- if(chart) chart.destroy();
- chart = new Chart(grafico,{
+ if(chart)chart.destroy();
+ chart=new Chart(grafico,{
   type:"doughnut",
   data:{
    labels:["Despesas","Sobra"],
    datasets:[{
-    data:[total, Math.max(dados.renda-total,0)],
+    data:[total,Math.max(dados.renda-total,0)],
     backgroundColor:["#ef4444","#22c55e"]
    }]
   }
@@ -213,27 +237,31 @@ function atualizarGrafico(total){
 }
 
 function exportarPDF(){
- const { jsPDF } = window.jspdf;
- const pdf = new jsPDF();
+ const {jsPDF}=window.jspdf;
+ const pdf=new jsPDF();
+ let y=10;
+ let total=dados.despesas.reduce((s,d)=>s+d.val,0);
+ let sobra=dados.renda-total;
 
- let y = 10;
- let total = dados.despesas.reduce((s,d)=>s+d.val,0);
- let sobra = dados.renda - total;
-
- pdf.text("FastStile CS - Relatório Financeiro",10,y); y+=10;
- pdf.text(`Renda: R$ ${dados.renda.toFixed(2)}`,10,y); y+=8;
- pdf.text(`Total de despesas: R$ ${total.toFixed(2)}`,10,y); y+=8;
- pdf.text(`Sobra: R$ ${sobra.toFixed(2)}`,10,y); y+=10;
-
- pdf.text("Histórico de Despesas:",10,y); y+=8;
+ pdf.text("FastStile CS • Relatório",10,y);y+=10;
+ pdf.text(`Renda: R$ ${dados.renda.toFixed(2)}`,10,y);y+=8;
+ pdf.text(`Despesas: R$ ${total.toFixed(2)}`,10,y);y+=8;
+ pdf.text(`Sobra: R$ ${sobra.toFixed(2)}`,10,y);y+=10;
+ pdf.text("Histórico:",10,y);y+=8;
 
  dados.despesas.forEach(d=>{
   pdf.text(`- ${d.cat} | ${d.desc} | R$ ${d.val.toFixed(2)} | ${d.data}`,10,y);
-  y+=7;
-  if(y>280){ pdf.addPage(); y=10; }
+  y+=7;if(y>280){pdf.addPage();y=10;}
  });
+ pdf.save("faststile-premium.pdf");
+}
 
- pdf.save("faststile-relatorio.pdf");
+function backup(){
+ const blob=new Blob([JSON.stringify(dados,null,2)],{type:"application/json"});
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);
+ a.download="faststile-backup.json";
+ a.click();
 }
 
 function resetar(){
@@ -245,7 +273,6 @@ function resetar(){
 
 atualizar();
 
-/* Anti-debug básico */
 document.addEventListener("contextmenu",e=>e.preventDefault());
 document.addEventListener("keydown",e=>{
  if(e.key==="F12"||(e.ctrlKey&&e.shiftKey))e.preventDefault();
